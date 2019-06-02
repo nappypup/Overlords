@@ -11,6 +11,9 @@ require("scripts/globals/msg")
 -----------------------------------
 
 function onAbilityCheck(player,target,ability)
+    if (player:getMainJob() == dsp.job.DRK) then
+        ability:setRecast(ability:getRecast()/6)
+    end
     if not player:isWeaponTwoHanded() then
         return dsp.msg.basic.NEEDS_2H_WEAPON, 0
     else
@@ -21,8 +24,10 @@ end
 function onUseAbility(player,target,ability)
     -- Applying Weapon Bash stun. Rate is said to be near 100%, so let's say 99%.
     if (math.random()*100 < 99) then
-        target:addStatusEffect(dsp.effect.STUN, 1, 0, 6)
+        target:addStatusEffect(dsp.effect.STUN, 1, 0, 1)
     end
+
+    player:addMP(player:getMaxMP() * 0.20)
 
     -- Weapon Bash deals damage dependant of Dark Knight level
     local darkKnightLvl = 0

@@ -16,5 +16,5 @@ end
 function onUseAbility(player,target,ability)
     target:delStatusEffect(dsp.effect.INNIN)
     target:delStatusEffect(dsp.effect.YONIN)
-    target:addStatusEffect(dsp.effect.INNIN,30,15,300,0,20)
+    target:addStatusEffect(dsp.effect.INNIN,100,15,3000,0,20)
 end

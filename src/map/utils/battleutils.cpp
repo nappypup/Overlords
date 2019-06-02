@@ -2221,6 +2221,7 @@ namespace battleutils
             if (PDefender->StatusEffectContainer->HasStatusEffect(EFFECT_YONIN) && ((abs(abs(PAttacker->loc.p.rotation - PDefender->loc.p.rotation) - 128) < 23)))
             {
                 offsetAccuracy -= PDefender->StatusEffectContainer->GetStatusEffect(EFFECT_YONIN)->GetPower();
+                offsetAccuracy += PAttacker->StatusEffectContainer->GetStatusEffect(EFFECT_YONIN)->GetPower();
             }
             //ShowDebug("Accuracy mod after direction checks: %d\n", offsetAccuracy);
 
@@ -2231,7 +2232,7 @@ namespace battleutils
                 hitrate += PAttacker->getMod(Mod::ENSPELL_DMG);
             }
 
-            hitrate = std::clamp(hitrate, 20, 95);
+            hitrate = std::clamp(hitrate, 20, 99);
         }
         return (uint8)hitrate;
     }
@@ -2296,14 +2297,15 @@ namespace battleutils
             if (PDefender->objtype == TYPE_PC) crithitrate -= ((CCharEntity*)PDefender)->PMeritPoints->GetMeritValue(MERIT_ENEMY_CRIT_RATE, (CCharEntity*)PDefender);
             //ShowDebug("Crit rate mod before Innin/Yonin: %d\n", crithitrate);
             // Check for Innin crit rate bonus from behind target
-            if (PAttacker->StatusEffectContainer->HasStatusEffect(EFFECT_INNIN) && ((abs(PDefender->loc.p.rotation - PAttacker->loc.p.rotation) < 23)))
-            {
-                crithitrate += PAttacker->StatusEffectContainer->GetStatusEffect(EFFECT_INNIN)->GetPower();
-            }
+            //if (PAttacker->StatusEffectContainer->HasStatusEffect(EFFECT_INNIN) && ((abs(PDefender->loc.p.rotation - PAttacker->loc.p.rotation) < 23)))
+            //{
+            //    crithitrate += PAttacker->StatusEffectContainer->GetStatusEffect(EFFECT_INNIN)->GetPower();
+            //}
             // Check for Yonin crit rate bonus while in front of target
             if (PDefender->StatusEffectContainer->HasStatusEffect(EFFECT_YONIN) && ((abs(abs(PAttacker->loc.p.rotation - PDefender->loc.p.rotation) - 128) < 23)))
             {
                 crithitrate -= PDefender->StatusEffectContainer->GetStatusEffect(EFFECT_YONIN)->GetPower();
+                crithitrate += PAttacker->StatusEffectContainer->GetStatusEffect(EFFECT_YONIN)->GetPower();
             }
             //ShowDebug("Crit rate mod after Innin/Yonin: %d\n", crithitrate);
 

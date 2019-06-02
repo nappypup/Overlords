@@ -20,6 +20,7 @@ function onEffectGain(target,effect)
         target:getStatusEffect(dsp.effect.AFFLATUS_MISERY):setSubPower(0)
         target:addMod(dsp.mod.ENSPELL,18)
         target:addMod(dsp.mod.ENSPELL_DMG,effect:getPower())
+        target:addMod(dsp.mod.STORETP,25)
     end
 end
 
@@ -40,6 +41,7 @@ function onEffectLose(target,effect)
 
         target:setMod(dsp.mod.ENSPELL_DMG,0)
         target:setMod(dsp.mod.ENSPELL,0)
+        target:delMod(dsp.mod.STORETP,25)
     end
 
 end

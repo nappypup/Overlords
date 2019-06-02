@@ -173,3 +173,4 @@ cmake_install.cmake
 
 # ignore servers
 *-server
+*.conf

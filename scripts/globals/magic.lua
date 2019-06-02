@@ -1131,16 +1131,16 @@ function doElementalNuke(caster, spell, target, spellParams)
         local I = spellParams.I; -- Inflection point
         local cap = I * 2 + V; -- Base damage soft cap
 
-        if dINT < 0 then 
+        if dINT < 0 then
             -- If dINT is a negative value the tier multiplier is always 1
             DMG = V + dINT;
 
             -- Check/ set lower limit of 0 damage for negative dINT
             if DMG < 1 then
                 return 0;
-            end			
+            end
 
-        elseif dINT < I then 
+        elseif dINT < I then
              -- If dINT > 0 but below inflection point I
             DMG = V + dINT * M;
 
@@ -1151,8 +1151,8 @@ function doElementalNuke(caster, spell, target, spellParams)
 
         -- Check/ set damage soft cap
         if DMG > cap then
-            DMG = cap; 
-        end	
+            DMG = cap;
+        end
 
     else
         local hasMultipleTargetReduction = spellParams.hasMultipleTargetReduction; --still unused!!!
@@ -1260,6 +1260,9 @@ function doNuke(caster, target, spell, params)
             end
             ninSkillBonus = utils.clamp(ninSkillBonus, 100, 200); -- bonus caps at +100%, and does not go negative
             dmg = dmg * ninSkillBonus/100;
+            if (caster:hasStatusEffect(dsp.effect.INNIN) and caster:isBehind(target, 23)) then
+              dmg = dmg * 15;
+            end
         end
         -- boost with Futae
         if (caster:hasStatusEffect(dsp.effect.FUTAE)) then

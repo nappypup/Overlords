@@ -10,9 +10,12 @@ require("scripts/globals/status")
 -----------------------------------
 
 function onAbilityCheck(player,target,ability)
+  if (player:getMainJob(dsp.job.DRK)) then
+      ability:setRecast(ability:getRecast()/5)
+  end
     return 0,0
 end
 
 function onUseAbility(player,target,ability)
-    player:addStatusEffect(dsp.effect.LAST_RESORT, 0, 0, 180)
+    player:addStatusEffect(dsp.effect.LAST_RESORT, 0, 0, 3600)
 end

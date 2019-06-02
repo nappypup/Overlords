@@ -58,13 +58,13 @@ void CAutomatonController::setCooldowns()
         switch (PAutomaton->getHead())
         {
         case HEAD_SHARPSHOT:
-            m_rangedCooldown = 20s;
+            m_rangedCooldown = 6s;
             break;
         case HEAD_HARLEQUIN:
-            m_rangedCooldown = 25s;
+            m_rangedCooldown = 12s;
             break;
         default:
-            m_rangedCooldown = 36s;
+            m_rangedCooldown = 24s;
         }
     }
     break;
@@ -123,16 +123,16 @@ void CAutomatonController::setMagicCooldowns()
     {
         m_magicCooldown = 4s;
         m_enfeebleCooldown = 4s;
-        m_healCooldown = 15s;
+        m_healCooldown = 4s;
         m_enhanceCooldown = 15s;
         m_statusCooldown = 15s;
     }
     break;
     case HEAD_SPIRITREAVER:
     {
-        m_magicCooldown = 10s;
+        m_magicCooldown = 4s;
         m_enfeebleCooldown = 10s;
-        m_elementalCooldown = 33s;
+        m_elementalCooldown = 5s;
         m_enhanceCooldown = 135s;
     }
     }

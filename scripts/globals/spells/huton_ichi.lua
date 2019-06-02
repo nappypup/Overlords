@@ -28,8 +28,13 @@ function onSpellCast(caster,target,spell)
 
     params.mabBonus = bonusMab
 
+    if (caster:hasStatusEffect(dsp.effect.INNIN) and caster:isBehind(target, 23)) then
+      params.dmg = params.dmg * 12
+    end
+
     dmg = doNinjutsuNuke(caster, target, spell, params)
     handleNinjutsuDebuff(caster,target,spell,30,duration,dsp.mod.ICERES)
+
 
     return dmg
 end
