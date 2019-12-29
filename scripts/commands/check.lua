@@ -10,4 +10,5 @@ player:PrintToPlayer(string.format("%s's HP: %i, MP: %i, Attack: %i, R-Attack %i
 player:PrintToPlayer(string.format("Acc: %i, RAcc: %i, Eva: %i", effectTarget:getACC(), effectTarget:getRACC(), effectTarget:getEVA()));
 player:PrintToPlayer(string.format("STR: %i DEX %i VIT %i AGI %i INT %i MND %i CHR %i", effectTarget:getStat(dsp.mod.STR), effectTarget:getStat(dsp.mod.DEX),effectTarget:getStat(dsp.mod.VIT), effectTarget:getStat(dsp.mod.AGI), effectTarget:getStat(dsp.mod.INT), effectTarget:getStat(dsp.mod.MND), effectTarget:getStat(dsp.mod.CHR)));
 player:PrintToPlayer(string.format("MACC: %i, MATT: %i, MDEF %i", effectTarget:getMod(dsp.mod.MACC), effectTarget:getMod(dsp.mod.MATT), effectTarget:getMod(dsp.mod.MDEF)));
+player:PrintToPlayer(string.format("HASTEJA: %i, Absorb: %i, Drain: %i", effectTarget:getMod(dsp.mod.HASTE_ABILITY), effectTarget:getMod(dsp.mod.AUGMENTS_ABSORB), effectTarget:getMod(dsp.mod.ENH_DRAIN_ASPIR)));
 end;
