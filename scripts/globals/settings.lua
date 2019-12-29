@@ -32,7 +32,12 @@ ENABLE_VOIDWATCH = 1; -- Not an expansion, but has its own storyline.
 ENABLE_FIELD_MANUALS  = 1; -- Enables Fields of Valor
 ENABLE_GROUNDS_TOMES  = 1; -- Enables Grounds of Valor
 REGIME_WAIT = 1; -- Make people wait till 00:00 game time as in retail. If it's 0, there is no wait time.
-LOW_LEVEL_REGIME = 0; -- Allow people to kill regime targets even if they give no exp, allowing people to farm regime targets at 75 in low level areas.
+
+-- TREASURE CASKETS
+-- Retail droprate = 0.1 (10%) with no other effects active
+-- Set to 0 to disable caskets.
+-- max is clamped to 1.0 (100%)
+CASKET_DROP_RATE = 0.1;
 
 -- Setting to lock content more accurately to the content you have defined above
 -- This generally results in a more accurate presentation of your selected expansions
@@ -131,7 +136,7 @@ USE_OLD_MAGIC_DAMAGE = false; -- true/false. if true, uses older magic damage fo
 
 -- CELEBRATIONS
 EXPLORER_MOOGLE = 1; -- Enables Explorer Moogle teleports
-EXPLORER_MOOGLE_LEVELCAP = 5;
+EXPLORER_MOOGLE_LV = 5;
 HALLOWEEN_2005 = 0; -- Set to 1 to Enable the 2005 version of Harvest Festival, will start on Oct. 20 and end Nov. 1.
 HALLOWEEN_YEAR_ROUND = 0; -- Set to 1 to have Harvest Festival initialize outside of normal times.
 

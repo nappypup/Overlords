@@ -41,7 +41,7 @@ dsp.magic.spellGroup =
     NINJUTSU  = 4,
     SUMMONING = 5,
     WHITE     = 6,
-};
+}
 
 ------------------------------------
 -- Spell AOE IDs
@@ -64,10 +64,11 @@ dsp.magic.aoe =
 
 dsp.magic.spellFlag =
 {
-    NONE          = 0x00,
-    HIT_ALL       = 0x01, -- Hit all targets in range regardless of party
-    WIPE_SHADOWS  = 0x02, -- Wipe shadows even if single target and miss/resist (example: Maiden's Virelai)
-};
+    NONE           = 0x00,
+    HIT_ALL        = 0x01, -- Hit all targets in range regardless of party
+    WIPE_SHADOWS   = 0x02, -- Wipe shadows even if single target and miss/resist (example: "Maiden's Virelai")
+    IGNORE_SHADOWS = 0x04  -- Ignore shadows and hit player anyways (example: Mobs "Death" spell)
+}
 
 ------------------------------------
 -- Tables by element

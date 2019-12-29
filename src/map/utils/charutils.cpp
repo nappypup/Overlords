@@ -741,9 +741,8 @@ namespace charutils
             }
         }
 
-        fmtQuery = "SELECT sandoria_supply, bastok_supply, windurst_supply, "
-            "runic_portal, maw, past_sandoria_tp, "
-            "past_bastok_tp, past_windurst_tp "
+        fmtQuery = "SELECT outpost_sandy, outpost_bastok, outpost_windy, runic_portal, maw, "
+            "campaign_sandy, campaign_bastok, campaign_windy, homepoints, survivals "
             "FROM char_unlocks "
             "WHERE charid = %u;";
 
@@ -753,14 +752,24 @@ namespace charutils
             Sql_NumRows(SqlHandle) != 0 &&
             Sql_NextRow(SqlHandle) == SQL_SUCCESS)
         {
-            PChar->nationtp.sandoria = Sql_GetUIntData(SqlHandle, 0);
-            PChar->nationtp.bastok = Sql_GetUIntData(SqlHandle, 1);
-            PChar->nationtp.windurst = Sql_GetUIntData(SqlHandle, 2);
-            PChar->nationtp.ahturhgan = Sql_GetUIntData(SqlHandle, 3);
-            PChar->nationtp.maw = Sql_GetUIntData(SqlHandle, 4);
-            PChar->nationtp.pastsandoria = Sql_GetUIntData(SqlHandle, 5);
-            PChar->nationtp.pastbastok = Sql_GetUIntData(SqlHandle, 6);
-            PChar->nationtp.pastwindurst = Sql_GetUIntData(SqlHandle, 7);
+            PChar->teleport.outpostSandy   = Sql_GetUIntData(SqlHandle, 0);
+            PChar->teleport.outpostBastok  = Sql_GetUIntData(SqlHandle, 1);
+            PChar->teleport.outpostWindy   = Sql_GetUIntData(SqlHandle, 2);
+            PChar->teleport.runicPortal    = Sql_GetUIntData(SqlHandle, 3);
+            PChar->teleport.pastMaw        = Sql_GetUIntData(SqlHandle, 4);
+            PChar->teleport.campaignSandy  = Sql_GetUIntData(SqlHandle, 5);
+            PChar->teleport.campaignBastok = Sql_GetUIntData(SqlHandle, 6);
+            PChar->teleport.campaignWindy  = Sql_GetUIntData(SqlHandle, 7);
+
+            size_t length = 0;
+            char* buf = nullptr;
+            Sql_GetData(SqlHandle, 8, &buf, &length);
+            memcpy(&PChar->teleport.homepoint, buf, (length > sizeof(PChar->teleport.homepoint) ? sizeof(PChar->teleport.homepoint) : length));
+
+            length = 0;
+            buf = nullptr;
+            Sql_GetData(SqlHandle, 9, &buf, &length);
+            memcpy(&PChar->teleport.survival, buf, (length > sizeof(PChar->teleport.survival) ? sizeof(PChar->teleport.survival) : length));
         }
 
         PChar->PMeritPoints = new CMeritPoints(PChar);
@@ -944,8 +953,8 @@ namespace charutils
                         for (uint8 j = 0; j < 4; ++j)
                         {
                             // found a match, apply the augment
-                            if (((CItemArmor*)PItem)->getAugment(j) != 0)
-                                ((CItemArmor*)PItem)->ApplyAugment(j);
+                            if (((CItemEquipment*)PItem)->getAugment(j) != 0)
+                                ((CItemEquipment*)PItem)->ApplyAugment(j);
                         }
                     }
                 }
@@ -1413,7 +1422,7 @@ namespace charutils
                         }
                     }
                     else if (PItem->isType(ITEM_EQUIPMENT)) {
-                        auto equipSlotID = ((CItemArmor*)PItem)->getSlotType();
+                        auto equipSlotID = ((CItemEquipment*)PItem)->getSlotType();
                         if (PChar->styleItems[equipSlotID] == ItemID) {
                             switch (equipSlotID)
                             {
@@ -1513,7 +1522,7 @@ namespace charutils
 
         if ((PItem != nullptr) && PItem->isType(ITEM_EQUIPMENT))
         {
-            auto removeSlotID = ((CItemArmor*)PItem)->getRemoveSlotId();
+            auto removeSlotID = ((CItemEquipment*)PItem)->getRemoveSlotId();
 
             for (auto i = 0u; i < sizeof(removeSlotID) * 8; ++i)
             {
@@ -1544,7 +1553,7 @@ namespace charutils
             }
 
             // Call the LUA event before actually "unequipping" the item so the script can do stuff with it first
-            if (((CItemArmor*)PItem)->getScriptType() & SCRIPT_EQUIP)
+            if (((CItemEquipment*)PItem)->getScriptType() & SCRIPT_EQUIP)
             {
                 luautils::OnItemCheck(PChar, PItem, ITEMCHECK::UNEQUIP, nullptr);
             }
@@ -1554,7 +1563,7 @@ namespace charutils
             PChar->equip[equipSlotID] = 0;
             PChar->equipLoc[equipSlotID] = 0;
 
-            if (((CItemArmor*)PItem)->getScriptType() & SCRIPT_EQUIP)
+            if (((CItemEquipment*)PItem)->getScriptType() & SCRIPT_EQUIP)
             {
                 PChar->m_EquipFlag = 0;
                 for (uint8 i = 0; i < 16; ++i)
@@ -1563,7 +1572,7 @@ namespace charutils
 
                     if ((PItem != nullptr) && PItem->isType(ITEM_EQUIPMENT))
                     {
-                        PChar->m_EquipFlag |= ((CItemArmor*)PItem)->getScriptType();
+                        PChar->m_EquipFlag |= ((CItemEquipment*)PItem)->getScriptType();
                     }
                 }
             }
@@ -1581,9 +1590,9 @@ namespace charutils
                     CheckUnarmedWeapon(PChar);
                 }
             }
-            PChar->delEquipModifiers(&((CItemArmor*)PItem)->modList, ((CItemArmor*)PItem)->getReqLvl(), equipSlotID);
-            PChar->PLatentEffectContainer->DelLatentEffects(((CItemArmor*)PItem)->getReqLvl(), equipSlotID);
-            PChar->delPetModifiers(&((CItemArmor*)PItem)->petModList);
+            PChar->delEquipModifiers(&((CItemEquipment*)PItem)->modList, ((CItemEquipment*)PItem)->getReqLvl(), equipSlotID);
+            PChar->PLatentEffectContainer->DelLatentEffects(((CItemEquipment*)PItem)->getReqLvl(), equipSlotID);
+            PChar->delPetModifiers(&((CItemEquipment*)PItem)->petModList);
 
             PChar->pushPacket(new CInventoryAssignPacket(PItem, INV_NORMAL)); //???
             PChar->pushPacket(new CEquipPacket(0, equipSlotID, LOC_INVENTORY));
@@ -1670,7 +1679,7 @@ namespace charutils
 
     void RemoveSub(CCharEntity* PChar)
     {
-        CItemArmor* PItem = (CItemArmor*)PChar->getEquip(SLOT_SUB);
+        CItemEquipment* PItem = (CItemEquipment*)PChar->getEquip(SLOT_SUB);
 
         if (PItem != nullptr && PItem->isType(ITEM_EQUIPMENT))
         {
@@ -1686,8 +1695,8 @@ namespace charutils
 
     bool EquipArmor(CCharEntity* PChar, uint8 slotID, uint8 equipSlotID, uint8 containerID)
     {
-        CItemArmor* PItem = (CItemArmor*)PChar->getStorage(containerID)->GetItem(slotID);
-        CItemArmor* oldItem = PChar->getEquip((SLOTTYPE)equipSlotID);
+        CItemEquipment* PItem = (CItemEquipment*)PChar->getStorage(containerID)->GetItem(slotID);
+        CItemEquipment* oldItem = PChar->getEquip((SLOTTYPE)equipSlotID);
 
         if (PItem == nullptr)
         {
@@ -1709,7 +1718,7 @@ namespace charutils
                 (oldItem->isType(ITEM_WEAPON) && PItem->isType(ITEM_WEAPON)) &&
                 ((((CItemWeapon*)PItem)->isTwoHanded() == true) && (((CItemWeapon*)oldItem)->isTwoHanded() == true))))
             {
-                CItemArmor* PSubItem = PChar->getEquip(SLOT_SUB);
+                CItemEquipment* PSubItem = PChar->getEquip(SLOT_SUB);
 
                 if (PSubItem != nullptr && PSubItem->isType(ITEM_EQUIPMENT) && (PSubItem->IsShield() != true))
                     RemoveSub(PChar);
@@ -1753,7 +1762,7 @@ namespace charutils
 
             for (uint8 i = 0; i < SLOT_BACK; ++i)
             {
-                CItemArmor* armor = PChar->getEquip((SLOTTYPE)i);
+                CItemEquipment* armor = PChar->getEquip((SLOTTYPE)i);
                 if (armor && armor->isType(ITEM_EQUIPMENT) && armor->getRemoveSlotId() & PItem->getEquipSlotId())
                 {
                     UnequipItem(PChar, i, false);
@@ -1776,7 +1785,7 @@ namespace charutils
                             case SKILL_GREAT_KATANA:
                             case SKILL_STAFF:
                             {
-                                CItemArmor* armor = (CItemArmor*)PChar->getEquip(SLOT_SUB);
+                                CItemEquipment* armor = (CItemEquipment*)PChar->getEquip(SLOT_SUB);
                                 if ((armor != nullptr) && armor->isType(ITEM_EQUIPMENT))
                                 {
                                     if (armor->isType(ITEM_WEAPON))
@@ -1947,7 +1956,7 @@ namespace charutils
         return true;
     }
 
-    bool canEquipItemOnAnyJob(CCharEntity* PChar, CItemArmor* PItem)
+    bool canEquipItemOnAnyJob(CCharEntity* PChar, CItemEquipment* PItem)
     {
         if (PItem == nullptr)
             return true;
@@ -1958,7 +1967,7 @@ namespace charutils
         return false;
     }
 
-    bool hasValidStyle(CCharEntity* PChar, CItemArmor* PItem, CItemArmor* AItem)
+    bool hasValidStyle(CCharEntity* PChar, CItemEquipment* PItem, CItemEquipment* AItem)
     {
         return (PItem != nullptr && AItem != nullptr
             && (((CItemWeapon*)AItem)->getSkillType() == ((CItemWeapon*)PItem)->getSkillType())
@@ -1991,7 +2000,7 @@ namespace charutils
         if (!PChar->getStyleLocked())
             return;
 
-        auto appearance = (CItemArmor*)itemutils::GetItem(PChar->styleItems[equipSlotID]);
+        auto appearance = (CItemEquipment*)itemutils::GetItem(PChar->styleItems[equipSlotID]);
         auto appearanceModel = (appearance == nullptr) ? 0 : appearance->getModelId();
 
         switch (equipSlotID)
@@ -2039,7 +2048,7 @@ namespace charutils
             return;
 
         auto itemID = PChar->styleItems[equipSlotID];
-        auto appearance = (CItemArmor*)itemutils::GetItem(itemID);
+        auto appearance = (CItemEquipment*)itemutils::GetItem(itemID);
         auto appearanceModel = (appearance == nullptr || !HasItem(PChar, itemID)) ? 0 : appearance->getModelId();
 
         if (!canEquipItemOnAnyJob(PChar, appearance))
@@ -2073,14 +2082,14 @@ namespace charutils
 
     void EquipItem(CCharEntity* PChar, uint8 slotID, uint8 equipSlotID, uint8 containerID)
     {
-        CItemArmor* PItem = (CItemArmor*)PChar->getStorage(containerID)->GetItem(slotID);
+        CItemEquipment* PItem = (CItemEquipment*)PChar->getStorage(containerID)->GetItem(slotID);
 
         if (PItem && PItem == PChar->getEquip((SLOTTYPE)equipSlotID))
             return;
 
         if (equipSlotID == SLOT_SUB && PItem && !PItem->IsShield() && ((CItemWeapon*)PItem)->getSkillType() == SKILL_NONE)
         {
-            CItemArmor* PMainItem = PChar->getEquip(SLOT_MAIN);
+            CItemEquipment* PMainItem = PChar->getEquip(SLOT_MAIN);
             if (!PMainItem || !((CItemWeapon*)PMainItem)->isTwoHanded())
             {
                 PChar->pushPacket(new CMessageBasicPacket(PChar, PChar, 0, 0, 0x200));
@@ -2090,7 +2099,7 @@ namespace charutils
 
         if (slotID == 0)
         {
-            CItemArmor* PSubItem = PChar->getEquip(SLOT_SUB);
+            CItemEquipment* PSubItem = PChar->getEquip(SLOT_SUB);
 
             UnequipItem(PChar, equipSlotID);
 
@@ -2132,8 +2141,8 @@ namespace charutils
                         }
                     }
 
-                    PChar->addEquipModifiers(&PItem->modList, ((CItemArmor*)PItem)->getReqLvl(), equipSlotID);
-                    PChar->PLatentEffectContainer->AddLatentEffects(PItem->latentList, ((CItemArmor*)PItem)->getReqLvl(), equipSlotID);
+                    PChar->addEquipModifiers(&PItem->modList, ((CItemEquipment*)PItem)->getReqLvl(), equipSlotID);
+                    PChar->PLatentEffectContainer->AddLatentEffects(PItem->latentList, ((CItemEquipment*)PItem)->getReqLvl(), equipSlotID);
                     PChar->PLatentEffectContainer->CheckLatentsEquip(equipSlotID);
                     PChar->addPetModifiers(&PItem->petModList);
 
@@ -2177,7 +2186,7 @@ namespace charutils
 
     void CheckValidEquipment(CCharEntity* PChar)
     {
-        CItemArmor* PItem = nullptr;
+        CItemEquipment* PItem = nullptr;
 
         for (uint8 slotID = 0; slotID < 16; ++slotID)
         {
@@ -2230,7 +2239,7 @@ namespace charutils
 
     void RemoveAllEquipment(CCharEntity* PChar)
     {
-        CItemArmor* PItem = nullptr;
+        CItemEquipment* PItem = nullptr;
 
         for (uint8 slotID = 0; slotID < 16; ++slotID)
         {
@@ -2270,7 +2279,7 @@ namespace charutils
 
             if ((PItem != nullptr) && PItem->isType(ITEM_EQUIPMENT))
             {
-                if (((CItemArmor*)PItem)->getScriptType() & ScriptType)
+                if (((CItemEquipment*)PItem)->getScriptType() & ScriptType)
                 {
                     luautils::OnItemCheck(PChar, PItem, static_cast<ITEMCHECK>(param), nullptr);
                 }
@@ -2310,7 +2319,7 @@ namespace charutils
 
         //add in melee ws
         PItem = dynamic_cast<CItemWeapon*>(PChar->getEquip(SLOT_MAIN));
-        uint8 skill = PItem ? PItem->getSkillType() : 0;
+        uint8 skill = PItem ? PItem->getSkillType() : SKILL_HAND_TO_HAND;
         auto& WeaponSkillList = battleutils::GetWeaponSkills(skill);
         for (auto&& PSkill : WeaponSkillList)
         {
@@ -4354,29 +4363,72 @@ namespace charutils
 
     /************************************************************************
     *                                                                       *
-    *  Nation teleports, etc.                                               *
+    *  Save Teleports - Homepoints, outposts, maws, etc                     *
     *                                                                       *
     ************************************************************************/
 
-    void SaveCharUnlocks(CCharEntity* PChar)
+    void SaveTeleport(CCharEntity* PChar, uint8 type)
     {
-        const char* Query = "UPDATE char_unlocks "
-            "SET sandoria_supply = %u, bastok_supply = %u, windurst_supply = %u, "
-            "runic_portal = %u, maw = %u, past_sandoria_tp = %u, "
-            "past_bastok_tp = %u, past_windurst_tp = %u "
-            "WHERE charid = %u;";
+        const char* column = "";
+        uint32 value = 0;
 
-        Sql_Query(SqlHandle,
-            Query,
-            PChar->nationtp.sandoria,
-            PChar->nationtp.bastok,
-            PChar->nationtp.windurst,
-            PChar->nationtp.ahturhgan,
-            PChar->nationtp.maw,
-            PChar->nationtp.pastsandoria,
-            PChar->nationtp.pastbastok,
-            PChar->nationtp.pastwindurst,
-            PChar->id);
+        switch(type)
+        {
+            case TELEPORT_OUTPOST_SANDY:
+                column = "outpost_sandy";
+                value  = PChar->teleport.outpostSandy;
+                break;
+            case TELEPORT_OUTPOST_BASTOK:
+                column = "outpost_bastok";
+                value  = PChar->teleport.outpostBastok;
+                break;
+            case TELEPORT_OUTPOST_WINDY:
+                column = "outpost_windy";
+                value  = PChar->teleport.outpostWindy;
+                break;
+            case TELEPORT_RUNIC_PORTAL:
+                column = "runic_portal";
+                value  = PChar->teleport.runicPortal;
+                break;
+            case TELEPORT_PAST_MAW:
+                column = "maw";
+                value  = PChar->teleport.pastMaw;
+                break;
+            case TELEPORT_CAMPAIGN_SANDY:
+                column = "campaign_sandy";
+                value  = PChar->teleport.campaignSandy;
+                break;
+            case TELEPORT_CAMPAIGN_BASTOK:
+                column = "campaign_bastok";
+                value  = PChar->teleport.campaignBastok;
+                break;
+            case TELEPORT_CAMPAIGN_WINDY:
+                column = "campaign_windy";
+                value  = PChar->teleport.campaignWindy;
+                break;
+            case TELEPORT_HOMEPOINT:
+            {
+                char buf[sizeof(PChar->teleport.homepoint) * 2 + 1];
+                Sql_EscapeStringLen(SqlHandle, buf, (const char*)&PChar->teleport.homepoint, sizeof(PChar->teleport.homepoint));
+                const char* query = "UPDATE char_unlocks SET homepoints = '%s' WHERE charid = %u;";
+                Sql_Query(SqlHandle, query, buf, PChar->id);
+                return;
+            }
+            case TELEPORT_SURVIVAL:
+            {
+                char buf[sizeof(PChar->teleport.survival) * 2 + 1];
+                Sql_EscapeStringLen(SqlHandle, buf, (const char*)&PChar->teleport.survival, sizeof(PChar->teleport.survival));
+                const char* query = "UPDATE char_unlocks SET survivals = '%s' WHERE charid = %u;";
+                Sql_Query(SqlHandle, query, buf, PChar->id);
+                return;
+            }
+            default: 
+                ShowError("charutils:SaveTeleport : Unknown type parameter.");
+                return;
+        }
+
+        const char* query = "UPDATE char_unlocks SET %s = %u WHERE charid = %u;";
+        Sql_Query(SqlHandle, query, column, value, PChar->id);
     }
 
     float  AddExpBonus(CCharEntity* PChar, float exp)
@@ -4647,7 +4699,7 @@ namespace charutils
     {
         for (uint8 slotID = 0; slotID < 16; ++slotID)
         {
-            CItemArmor* PItem = PChar->getEquip((SLOTTYPE)slotID);
+            CItemEquipment* PItem = PChar->getEquip((SLOTTYPE)slotID);
             if (PItem)
             {
                 PChar->delEquipModifiers(&PItem->modList, PItem->getReqLvl(), slotID);
@@ -4664,7 +4716,7 @@ namespace charutils
     {
         for (uint8 slotID = 0; slotID < 16; ++slotID)
         {
-            CItemArmor* PItem = (CItemArmor*)PChar->getEquip((SLOTTYPE)slotID);
+            CItemEquipment* PItem = (CItemEquipment*)PChar->getEquip((SLOTTYPE)slotID);
             if (PItem)
             {
                 PChar->addEquipModifiers(&PItem->modList, PItem->getReqLvl(), slotID);
@@ -4952,7 +5004,7 @@ namespace charutils
         return false;
     }
 
-    int32 GetVar(CCharEntity* PChar, const char* var)
+    int32 GetCharVar(CCharEntity* PChar, const char* var)
     {
         const char* fmtQuery = "SELECT value FROM char_vars WHERE charid = %u AND varname = '%s' LIMIT 1;";
 
