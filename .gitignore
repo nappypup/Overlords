@@ -174,3 +174,6 @@ cmake_install.cmake
 # ignore servers
 *-server
 *.conf
+/conf/*.conf
+/conf
+New Text Document.txt
